@@ -1,0 +1,11 @@
+[build]
+  builder = "nixpacks"
+  buildCommand = "cd backend && go build -o main ."
+
+[deploy]
+  startCommand = "cd backend && ./main"
+  restartPolicyType = "on_failure"
+  restartPolicyMaxRetries = 10
+
+[env]
+  PORT = "4000"
