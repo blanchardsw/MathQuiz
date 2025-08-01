@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"log"
 	"net/http"
 	"sync"
 	"mental-math-trainer/backend/models"
@@ -13,6 +14,7 @@ import (
 type SessionData struct {
 	Score             int                `json:"score"`
 	CurrentQuestion   models.Question    `json:"currentQuestion"`
+	CurrentAnswer     int                `json:"currentAnswer"`     // Store answer separately since Question.Answer has json:"-"
 	CurrentDifficulty string             `json:"currentDifficulty"`
 	HighScores        map[string]int     `json:"highScores"`
 }
@@ -51,6 +53,7 @@ func getOrCreateSession(r *http.Request) (string, *SessionData) {
 		sessionData = &SessionData{
 			Score:             0,
 			CurrentQuestion:   models.Question{},
+			CurrentAnswer:     0,
 			CurrentDifficulty: "",
 			HighScores: map[string]int{
 				"easy":   0,
@@ -85,21 +88,23 @@ func HandleAnswer(w http.ResponseWriter, r *http.Request) {
 			Name:     "session_id",
 			Value:    sessionID,
 			Path:     "/",
-			HttpOnly: true,
-			SameSite: http.SameSiteNoneMode,
-			Secure:   true,
+			HttpOnly: false,
+			SameSite: http.SameSiteLaxMode,
+			Secure:   false,
 		})
 	}
 
+	log.Printf("DEBUG: HandleAnswer - Session ID: %s, CurrentAnswer: %d, UserAnswer: %d", sessionID[:8], sessionData.CurrentAnswer, req.UserAnswer)
+
 	// Compare against the session-stored answer
-	correct := req.UserAnswer == sessionData.CurrentQuestion.Answer
+	correct := req.UserAnswer == sessionData.CurrentAnswer
 	if correct {
 		sessionData.Score++
 	}
 
 	resp := models.AnswerResponse{
 		Correct:       correct,
-		CorrectAnswer: sessionData.CurrentQuestion.Answer,
+		CorrectAnswer: sessionData.CurrentAnswer,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -117,9 +122,9 @@ func HandleScore(w http.ResponseWriter, r *http.Request) {
 			Name:     "session_id",
 			Value:    sessionID,
 			Path:     "/",
-			HttpOnly: true,
-			SameSite: http.SameSiteNoneMode,
-			Secure:   true,
+			HttpOnly: false,
+			SameSite: http.SameSiteLaxMode,
+			Secure:   false,
 		})
 	}
 
@@ -162,9 +167,9 @@ func HandleResetScore(w http.ResponseWriter, r *http.Request) {
 			Name:     "session_id",
 			Value:    sessionID,
 			Path:     "/",
-			HttpOnly: true,
-			SameSite: http.SameSiteNoneMode,
-			Secure:   true,
+			HttpOnly: false,
+			SameSite: http.SameSiteLaxMode,
+			Secure:   false,
 		})
 	}
 

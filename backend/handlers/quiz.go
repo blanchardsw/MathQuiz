@@ -26,18 +26,20 @@ func HandleQuiz(w http.ResponseWriter, r *http.Request) {
 			Name:     "session_id",
 			Value:    sessionID,
 			Path:     "/",
-			HttpOnly: true,
-			SameSite: http.SameSiteNoneMode,
-			Secure:   true,
+			HttpOnly: false,
+			SameSite: http.SameSiteLaxMode,
+			Secure:   false,
 		})
 	}
 
-	// Store the current question and difficulty in session for answer validation
+	// Store the current question, answer, and difficulty in session for answer validation
 	sessionData.CurrentQuestion = question
+	sessionData.CurrentAnswer = question.Answer
 	sessionData.CurrentDifficulty = difficulty
 
 	log.Printf("Generated [%s] question for session %s: %d %s %d = %d",
 		difficulty, sessionID[:8], question.Operand1, question.Operator, question.Operand2, question.Answer)
+	log.Printf("DEBUG: Stored answer in session: %d", sessionData.CurrentAnswer)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(question)
