@@ -43,7 +43,7 @@ const Quiz: React.FC<QuizProps> = ({ onAnswerSubmitted, isActive, onTimeUp, diff
     if (isActive) {
       loadNewQuestion();
     }
-  }, [isActive]);
+  }, [isActive, loadNewQuestion]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
