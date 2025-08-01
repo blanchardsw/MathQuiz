@@ -17,12 +17,27 @@ func HandleQuiz(w http.ResponseWriter, r *http.Request) {
 
 	question := utils.GenerateQuestion(difficulty)
 	
-	// Store the current question and difficulty server-side for answer validation
-	currentQuestion = question
-	currentDifficulty = difficulty
+	// Get session data
+	sessionID, sessionData := getOrCreateSession(r)
 
-	log.Printf("Generated [%s] question: %d %s %d = %d",
-		difficulty, question.Operand1, question.Operator, question.Operand2, question.Answer)
+	// Set session cookie if it's a new session
+	if _, err := r.Cookie("session_id"); err != nil {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "session_id",
+			Value:    sessionID,
+			Path:     "/",
+			HttpOnly: true,
+			SameSite: http.SameSiteNoneMode,
+			Secure:   true,
+		})
+	}
+
+	// Store the current question and difficulty in session for answer validation
+	sessionData.CurrentQuestion = question
+	sessionData.CurrentDifficulty = difficulty
+
+	log.Printf("Generated [%s] question for session %s: %d %s %d = %d",
+		difficulty, sessionID[:8], question.Operand1, question.Operator, question.Operand2, question.Answer)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(question)
