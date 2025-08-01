@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Question, AnswerResponse, Difficulty, apiService } from '../services/api';
 import Timer from './Timer';
 
@@ -17,7 +17,7 @@ const Quiz: React.FC<QuizProps> = ({ onAnswerSubmitted, isActive, onTimeUp, diff
   const [showFeedback, setShowFeedback] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const loadNewQuestion = async () => {
+  const loadNewQuestion = useCallback(async () => {
     try {
       setLoading(true);
       setFeedback(null);
@@ -37,7 +37,7 @@ const Quiz: React.FC<QuizProps> = ({ onAnswerSubmitted, isActive, onTimeUp, diff
     } finally {
       setLoading(false);
     }
-  };
+  }, [difficulty]);
 
   useEffect(() => {
     if (isActive) {
