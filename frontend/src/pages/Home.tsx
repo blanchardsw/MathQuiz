@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import Quiz from '../components/Quiz';
 import Score from '../components/Score';
 import { ScoreResponse, Difficulty, apiService } from '../services/api';
+import { useSession } from '../contexts/SessionContext';
 
 const Home: React.FC = () => {
+  const { initialized } = useSession();
   const [isQuizActive, setIsQuizActive] = useState(false);
   const [difficulty, setDifficulty] = useState<Difficulty>('normal');
   const [score, setScore] = useState<ScoreResponse>({
@@ -15,15 +17,28 @@ const Home: React.FC = () => {
   const loadScore = async () => {
     try {
       const currentScore = await apiService.getScore();
-      setScore(currentScore);
+
+      // Defensive fallback to prevent negative infinity high score.
+      const safeScore: ScoreResponse = {
+        currentScore: currentScore?.currentScore ?? 0,
+        highScores: {
+          easy: currentScore?.highScores?.easy ?? 0,
+          normal: currentScore?.highScores?.normal ?? 0,
+          hard: currentScore?.highScores?.hard ?? 0,
+        },
+        isNewRecord: currentScore?.isNewRecord ?? false,
+      };
+
+      setScore(safeScore);
     } catch (error) {
       console.error('Failed to load score:', error);
     }
   };
 
   useEffect(() => {
+    if (!initialized) return;
     loadScore();
-  }, []);
+  }, [initialized]);
 
   const handleStartQuiz = () => {
     setIsQuizActive(true);
@@ -94,7 +109,7 @@ const Home: React.FC = () => {
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                   >
-                    Easy (1-10, +)
+                    Easy (1-10, add/subtract)
                   </button>
                   <button
                     onClick={() => setDifficulty('normal')}
@@ -104,7 +119,7 @@ const Home: React.FC = () => {
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                   >
-                    Normal (1-20, +/-)
+                    Normal (1-20, add/subtract/multiply)
                   </button>
                   <button
                     onClick={() => setDifficulty('hard')}
@@ -114,7 +129,7 @@ const Home: React.FC = () => {
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                   >
-                    Hard (10-99, +/-/*)
+                    Hard (10-99, add/subtract/multiply/divide)
                   </button>
                 </div>
               </div>

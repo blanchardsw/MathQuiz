@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import './index.css';
 import { useEffect } from "react";
 import axios from 'axios';
+import { SessionProvider } from './contexts/SessionContext';
 
 function App() {
   useEffect(() => {
@@ -28,9 +29,11 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <Home />
-    </div>
+    <SessionProvider>
+      <div className="App">
+        <Home />
+      </div>
+    </SessionProvider>
   );
 }
 

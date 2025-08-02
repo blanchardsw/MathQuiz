@@ -27,11 +27,12 @@ export type Difficulty = 'easy' | 'normal' | 'hard';
 
 class ApiService {
   private axiosInstance: AxiosInstance;
+  private baseURL: string;
 
   constructor() {
-    const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
+    this.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
     this.axiosInstance = axios.create({
-      baseURL,
+      baseURL: this.baseURL,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -59,6 +60,11 @@ class ApiService {
       difficulty: difficulty
     });
     return response.data;
+  }
+
+  async initSession(): Promise<void> {
+    const res = await this.axiosInstance.post(`/init-session`, {}, { withCredentials: true });
+    return res.data;  
   }
 }
 

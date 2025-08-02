@@ -57,6 +57,11 @@ func HandleAnswer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
 	sessionData, sessionID, err := getSession(r)
 	if err != nil {
 		http.Error(w, "Session not found", http.StatusUnauthorized)

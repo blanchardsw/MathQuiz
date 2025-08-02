@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"mental-math-trainer/backend/models"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -19,7 +20,7 @@ func generateQuestion(difficulty string) models.Question {
 	case "easy":
 		min, max = 1, 10
 		operators = []string{"+", "-"}
-	case "medium":
+	case "normal":
 		min, max = 10, 50
 		operators = []string{"+", "-", "*"}
 	case "hard":
@@ -57,7 +58,7 @@ func HandleGenerateQuestion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Parse difficulty
-	difficulty := r.URL.Query().Get("difficulty")
+	difficulty := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("difficulty")))
 	if difficulty == "" {
 		difficulty = "easy"
 	}
