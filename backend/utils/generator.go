@@ -2,8 +2,8 @@ package utils
 
 import (
 	"math/rand"
-	"time"
 	"mental-math-trainer/backend/models"
+	"time"
 )
 
 // GenerateQuestion creates a question based on difficulty
@@ -33,20 +33,10 @@ func GenerateQuestion(difficulty string) models.Question {
 	operand2 := rand.Intn(max-min+1) + min
 	operator := operators[rand.Intn(len(operators))]
 
-	var answer int
-	switch operator {
-	case "+":
-		answer = operand1 + operand2
-	case "-":
-		answer = operand1 - operand2
-	case "*":
-		answer = operand1 * operand2
-	}
-
 	return models.Question{
-		Operand1: operand1,
-		Operand2: operand2,
-		Operator: operator,
-		Answer:   answer,
+		Operand1:   operand1,
+		Operand2:   operand2,
+		Operator:   operator,
+		Difficulty: difficulty,
 	}
 }

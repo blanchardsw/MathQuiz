@@ -52,7 +52,9 @@ const Score: React.FC<ScoreProps> = ({ score }) => {
           <div className="text-center">
             <div className="bg-green-50 rounded-lg p-3">
               <div className="text-lg font-bold text-green-600">
-                {Math.max(...Object.values(score.highScores))}
+              {score.highScores
+                ? Math.max(...Object.values(score.highScores))
+                : 0}
               </div>
               <div className="text-sm text-gray-600">Best Overall</div>
             </div>
@@ -64,15 +66,15 @@ const Score: React.FC<ScoreProps> = ({ score }) => {
           <div className="text-sm font-medium text-gray-700 mb-2">High Scores by Difficulty:</div>
           <div className="grid grid-cols-3 gap-2 text-xs">
             <div className="bg-green-100 rounded p-2 text-center">
-              <div className="font-bold text-green-700">{score.highScores.easy || 0}</div>
+              <div className="font-bold text-green-700">{score.highScores?.easy || 0}</div>
               <div className="text-green-600">Easy</div>
             </div>
             <div className="bg-blue-100 rounded p-2 text-center">
-              <div className="font-bold text-blue-700">{score.highScores.normal || 0}</div>
+              <div className="font-bold text-blue-700">{score.highScores?.normal || 0}</div>
               <div className="text-blue-600">Normal</div>
             </div>
             <div className="bg-red-100 rounded p-2 text-center">
-              <div className="font-bold text-red-700">{score.highScores.hard || 0}</div>
+              <div className="font-bold text-red-700">{score.highScores?.hard || 0}</div>
               <div className="text-red-600">Hard</div>
             </div>
           </div>

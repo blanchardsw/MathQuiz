@@ -52,8 +52,10 @@ const Quiz: React.FC<QuizProps> = ({ onAnswerSubmitted, isActive, onTimeUp, diff
     try {
       setLoading(true);
       const response = await apiService.submitAnswer({
-        userAnswer: parseInt(userAnswer)
+        userAnswer: parseInt(userAnswer),
+        questionId: question.id // or include operands/operator if needed
       });
+      
       
       setFeedback(response);
       setShowFeedback(true);

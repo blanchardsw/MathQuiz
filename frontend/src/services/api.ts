@@ -4,10 +4,12 @@ export interface Question {
   operand1: number;
   operand2: number;
   operator: string;
+  id: string;
 }
 
 export interface AnswerRequest {
   userAnswer: number;
+  questionId: string;
 }
 
 export interface AnswerResponse {
@@ -33,13 +35,14 @@ class ApiService {
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: true // ✅ this sends cookies
     });
   }
 
   async getQuiz(difficulty: Difficulty = 'normal'): Promise<Question> {
-    const response = await this.axiosInstance.get<Question>(`/quiz?difficulty=${difficulty}`);
+    const response = await this.axiosInstance.get<Question>(`/question?difficulty=${difficulty}`);
     return response.data;
-  }
+  }  
 
   async submitAnswer(answerRequest: AnswerRequest): Promise<AnswerResponse> {
     const response = await this.axiosInstance.post<AnswerResponse>('/answer', answerRequest);

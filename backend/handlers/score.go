@@ -4,24 +4,25 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"log"
+	"mental-math-trainer/backend/models"
 	"net/http"
 	"sync"
-	"mental-math-trainer/backend/models"
 )
 
 // SessionData holds all session-specific data
 type SessionData struct {
-	Score             int                `json:"score"`
-	CurrentQuestion   models.Question    `json:"currentQuestion"`
-	CurrentAnswer     int                `json:"currentAnswer"`     // Store answer separately since Question.Answer has json:"-"
-	CurrentDifficulty string             `json:"currentDifficulty"`
-	HighScores        map[string]int     `json:"highScores"`
+	Score             int             `json:"score"`
+	CurrentQuestion   models.Question `json:"currentQuestion"`
+	CurrentAnswer     int             `json:"currentAnswer"` // Store answer separately since Question.Answer has json:"-"
+	CurrentDifficulty string          `json:"currentDifficulty"`
+	HighScores        map[string]int  `json:"highScores"`
 }
 
 // Global session storage with mutex for thread safety
 var (
-	sessions = make(map[string]*SessionData)
+	sessions      = make(map[string]*SessionData)
 	sessionsMutex = sync.RWMutex{}
 )
 
@@ -32,39 +33,21 @@ func generateSessionID() string {
 	return hex.EncodeToString(bytes)
 }
 
-// getOrCreateSession retrieves or creates a session for the request
-func getOrCreateSession(r *http.Request) (string, *SessionData) {
-	sessionsMutex.Lock()
-	defer sessionsMutex.Unlock()
-
-	// Try to get session ID from cookie
+func getSession(r *http.Request) (*SessionData, string, error) {
 	cookie, err := r.Cookie("session_id")
-	var sessionID string
-	if err != nil || cookie.Value == "" {
-		// Create new session
-		sessionID = generateSessionID()
-	} else {
-		sessionID = cookie.Value
+	if err != nil {
+		return nil, "", err
 	}
 
-	// Get or create session data
-	sessionData, exists := sessions[sessionID]
+	sessionsMutex.RLock()
+	defer sessionsMutex.RUnlock()
+
+	sessionData, exists := sessions[cookie.Value]
 	if !exists {
-		sessionData = &SessionData{
-			Score:             0,
-			CurrentQuestion:   models.Question{},
-			CurrentAnswer:     0,
-			CurrentDifficulty: "",
-			HighScores: map[string]int{
-				"easy":   0,
-				"normal": 0,
-				"hard":   0,
-			},
-		}
-		sessions[sessionID] = sessionData
+		return nil, cookie.Value, errors.New("session not found")
 	}
 
-	return sessionID, sessionData
+	return sessionData, cookie.Value, nil
 }
 
 // HandleAnswer checks the user's answer and updates score
@@ -74,13 +57,11 @@ func HandleAnswer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&req)
+	sessionData, sessionID, err := getSession(r)
 	if err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+		http.Error(w, "Session not found", http.StatusUnauthorized)
 		return
 	}
-
-	// Get session data
-	sessionID, sessionData := getOrCreateSession(r)
 
 	// Set session cookie if it's a new session
 	if _, err := r.Cookie("session_id"); err != nil {
@@ -113,8 +94,12 @@ func HandleAnswer(w http.ResponseWriter, r *http.Request) {
 
 // HandleScore returns the current score and high scores
 func HandleScore(w http.ResponseWriter, r *http.Request) {
-	// Get session data
-	sessionID, sessionData := getOrCreateSession(r)
+	sessionData, sessionID, err := getSession(r)
+	log.Println("Handling /api/score")
+	if err != nil {
+		http.Error(w, "Session not found", http.StatusUnauthorized)
+		return
+	}
 
 	// Set session cookie if it's a new session
 	if _, err := r.Cookie("session_id"); err != nil {
@@ -130,12 +115,17 @@ func HandleScore(w http.ResponseWriter, r *http.Request) {
 
 	// Check if current score is a new record (but not if previous high score was 0)
 	isNewRecord := false
-	if sessionData.CurrentDifficulty != "" && sessionData.Score > sessionData.HighScores[sessionData.CurrentDifficulty] && sessionData.HighScores[sessionData.CurrentDifficulty] > 0 {
-		sessionData.HighScores[sessionData.CurrentDifficulty] = sessionData.Score
-		isNewRecord = true
-	} else if sessionData.CurrentDifficulty != "" && sessionData.Score > sessionData.HighScores[sessionData.CurrentDifficulty] {
-		// Update high score but don't celebrate if previous was 0
-		sessionData.HighScores[sessionData.CurrentDifficulty] = sessionData.Score
+	// Ensure high score is initialized
+	if sessionData.CurrentDifficulty != "" {
+		if _, exists := sessionData.HighScores[sessionData.CurrentDifficulty]; !exists {
+			sessionData.HighScores[sessionData.CurrentDifficulty] = 0
+		}
+
+		// Check if current score is a new record
+		if sessionData.Score > sessionData.HighScores[sessionData.CurrentDifficulty] {
+			isNewRecord = sessionData.HighScores[sessionData.CurrentDifficulty] > 0
+			sessionData.HighScores[sessionData.CurrentDifficulty] = sessionData.Score
+		}
 	}
 
 	resp := models.ScoreResponse{
@@ -158,8 +148,11 @@ func HandleResetScore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get session data
-	sessionID, sessionData := getOrCreateSession(r)
+	sessionData, sessionID, err := getSession(r)
+	if err != nil {
+		http.Error(w, "Session not found", http.StatusUnauthorized)
+		return
+	}
 
 	// Set session cookie if it's a new session
 	if _, err := r.Cookie("session_id"); err != nil {
