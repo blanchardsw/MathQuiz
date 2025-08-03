@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"log"
-	"mental-math-trainer/backend/utils"
+	"mental-math-trainer/utils"
 	"net/http"
 )
 

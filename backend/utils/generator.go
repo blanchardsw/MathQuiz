@@ -2,7 +2,7 @@ package utils
 
 import (
 	"math/rand"
-	"mental-math-trainer/backend/models"
+	"mental-math-trainer/models"
 	"time"
 )
 

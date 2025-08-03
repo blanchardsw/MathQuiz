@@ -3,7 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"math/rand"
-	"mental-math-trainer/backend/models"
+	"mental-math-trainer/models"
 	"net/http"
 	"strings"
 	"time"

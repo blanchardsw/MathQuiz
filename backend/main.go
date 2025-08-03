@@ -2,7 +2,7 @@ package main
 
 import (
 	"log"
-	"mental-math-trainer/backend/handlers"
+	"mental-math-trainer/handlers"
 	"net/http"
 
 	_ "github.com/golang-jwt/jwt/v5"
