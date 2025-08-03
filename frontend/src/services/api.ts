@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import {jwtDecode} from 'jwt-decode';
 import {toast} from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.min.css';
+import 'react-toastify/dist/ReactToastify.css';
 
 export interface Question {
   operand1: number;
