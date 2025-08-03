@@ -4,6 +4,8 @@ import (
 	"log"
 	"mental-math-trainer/backend/handlers"
 	"net/http"
+
+	_ "github.com/golang-jwt/jwt/v5"
 )
 
 func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
