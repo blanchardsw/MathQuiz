@@ -86,16 +86,6 @@ func HandleGenerateQuestion(w http.ResponseWriter, r *http.Request) {
 	sessionData.CurrentAnswer = answer
 	sessionData.CurrentDifficulty = difficulty
 
-	// Set session cookie
-	http.SetCookie(w, &http.Cookie{
-		Name:     "session_id",
-		Value:    sessionID,
-		Path:     "/",
-		HttpOnly: false,
-		SameSite: http.SameSiteLaxMode,
-		Secure:   false,
-	})
-
 	// Return question without answer
 	publicQuestion := struct {
 		Operand1   int    `json:"operand1"`

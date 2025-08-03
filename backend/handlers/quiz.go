@@ -24,18 +24,6 @@ func HandleQuiz(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set session cookie if it's a new session
-	if _, err := r.Cookie("session_id"); err != nil {
-		http.SetCookie(w, &http.Cookie{
-			Name:     "session_id",
-			Value:    sessionID,
-			Path:     "/",
-			HttpOnly: false,
-			SameSite: http.SameSiteLaxMode,
-			Secure:   false,
-		})
-	}
-
 	// Store the current question, answer, and difficulty in session for answer validation
 	sessionData.CurrentQuestion = question
 	sessionData.CurrentDifficulty = difficulty

@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import {jwtDecode} from 'jwt-decode';
 
 export interface Question {
   operand1: number;
@@ -25,6 +26,20 @@ export interface ScoreResponse {
 
 export type Difficulty = 'easy' | 'normal' | 'hard';
 
+interface DecodedToken {
+  exp: number;
+}
+
+function isTokenExpired(token: string): boolean {
+  try {
+    const decoded = jwtDecode<DecodedToken>(token);
+    const now = Math.floor(Date.now() / 1000);
+    return decoded.exp < now;
+  } catch {
+    return true;
+  }
+}
+
 class ApiService {
   private axiosInstance: AxiosInstance;
   private baseURL: string;
@@ -36,9 +51,27 @@ class ApiService {
       headers: {
         'Content-Type': 'application/json',
       },
-      withCredentials: true // ✅ this sends cookies
+      withCredentials: true
     });
-  }
+  
+    // ✅ Add interceptor to inject JWT
+    this.axiosInstance.interceptors.request.use(async config => {
+      const token = sessionStorage.getItem("jwt");
+    
+      if (token) {
+        if (isTokenExpired(token)) {
+          const newToken = await this.refreshToken();
+          if (newToken) {
+            config.headers.Authorization = `Bearer ${newToken}`;
+          }
+        } else {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+      }
+    
+      return config;
+    });
+  }    
 
   async getQuiz(difficulty: Difficulty = 'normal'): Promise<Question> {
     const response = await this.axiosInstance.get<Question>(`/question?difficulty=${difficulty}`);
@@ -64,7 +97,25 @@ class ApiService {
 
   async initSession(): Promise<void> {
     const res = await this.axiosInstance.post(`/init-session`, {}, { withCredentials: true });
-    return res.data;  
+    const { token } = res.data;
+    if (token) {
+      sessionStorage.setItem("jwt", token);
+    }
+  }
+
+  async refreshToken(): Promise<string | null> {
+    try {
+      const res = await this.axiosInstance.post<{ token: string }>("/refresh-token", {}, { withCredentials: true });
+      const { token } = res.data;
+      if (token) {
+        sessionStorage.setItem("jwt", token);
+        return token;
+      }
+      return null;
+    } catch (err) {
+      console.error("Failed to refresh token", err);
+      return null;
+    }
   }
 }
 

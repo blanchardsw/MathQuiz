@@ -7,7 +7,9 @@ import (
 	"errors"
 	"log"
 	"mental-math-trainer/backend/models"
+	"mental-math-trainer/backend/utils"
 	"net/http"
+	"strings"
 	"sync"
 )
 
@@ -34,7 +36,18 @@ func generateSessionID() string {
 }
 
 func getSession(r *http.Request) (*SessionData, string, error) {
-	cookie, err := r.Cookie("session_id")
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return nil, "", errors.New("Missing Authorization header")
+	}
+
+	const prefix = "Bearer "
+	if !strings.HasPrefix(authHeader, prefix) {
+		return nil, "", errors.New("Invalid Authorization format")
+	}
+
+	tokenStr := strings.TrimPrefix(authHeader, prefix)
+	sessionID, err := utils.ValidateJWT(tokenStr)
 	if err != nil {
 		return nil, "", err
 	}
@@ -42,12 +55,12 @@ func getSession(r *http.Request) (*SessionData, string, error) {
 	sessionsMutex.RLock()
 	defer sessionsMutex.RUnlock()
 
-	sessionData, exists := sessions[cookie.Value]
+	sessionData, exists := sessions[sessionID]
 	if !exists {
-		return nil, cookie.Value, errors.New("Session not found.")
+		return nil, sessionID, errors.New("Session not found")
 	}
 
-	return sessionData, cookie.Value, nil
+	return sessionData, sessionID, nil
 }
 
 // HandleAnswer checks the user's answer and updates score
@@ -66,18 +79,6 @@ func HandleAnswer(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Session not found.", http.StatusUnauthorized)
 		return
-	}
-
-	// Set session cookie if it's a new session
-	if _, err := r.Cookie("session_id"); err != nil {
-		http.SetCookie(w, &http.Cookie{
-			Name:     "session_id",
-			Value:    sessionID,
-			Path:     "/",
-			HttpOnly: false,
-			SameSite: http.SameSiteLaxMode,
-			Secure:   false,
-		})
 	}
 
 	log.Printf("DEBUG: HandleAnswer - Session ID: %s, CurrentAnswer: %d, UserAnswer: %d", sessionID[:8], sessionData.CurrentAnswer, req.UserAnswer)

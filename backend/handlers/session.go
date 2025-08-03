@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"encoding/json"
 	"log"
+	"mental-math-trainer/backend/utils"
 	"net/http"
 )
 
@@ -15,7 +17,6 @@ func HandleInitSession(w http.ResponseWriter, r *http.Request) {
 	// Check if session already exists
 	_, _, err := getSession(r)
 	if err != nil {
-		// Create new session
 		log.Printf("No valid session found: %v. Creating new session.", err)
 		sessionID := generateSessionID()
 		sessionData := &SessionData{
@@ -25,17 +26,19 @@ func HandleInitSession(w http.ResponseWriter, r *http.Request) {
 		sessions[sessionID] = sessionData
 		sessionsMutex.Unlock()
 
-		http.SetCookie(w, &http.Cookie{
-			Name:     "session_id",
-			Value:    sessionID,
-			Path:     "/",
-			HttpOnly: true,
-			SameSite: http.SameSiteNoneMode,
-			Secure:   true,
-		})
+		// ✅ Create JWT with sessionID
+		token, err := utils.GenerateJWT(sessionID)
+		if err != nil {
+			http.Error(w, "Failed to create token", http.StatusInternalServerError)
+			return
+		}
 
-		// ✅ Use sessionID in a log to silence staticcheck
+		// ✅ Return token in response body
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{"token": token})
+
 		log.Printf("Created new session: %s", sessionID)
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
