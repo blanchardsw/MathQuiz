@@ -1,0 +1,6 @@
+# nixpacks.toml
+[phases.build]
+cmds = ["go build -mod=readonly -o main ./backend"]
+
+[start]
+cmd = "./main"
