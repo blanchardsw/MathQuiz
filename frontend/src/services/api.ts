@@ -111,10 +111,19 @@ class ApiService {
         sessionStorage.setItem("jwt", token);
         return token;
       }
+      this.logout();
       return null;
     } catch (err) {
       console.error("Failed to refresh token", err);
+      this.logout();
       return null;
+    }
+  }
+
+  logout(): void {
+    sessionStorage.removeItem("jwt");
+    if (window.location.pathname !== "/") {
+      window.location.href = "/";
     }
   }
 }
