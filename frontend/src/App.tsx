@@ -3,7 +3,7 @@ import Home from './pages/Home';
 import './index.css';
 import { SessionProvider } from './contexts/SessionContext';
 import { apiService } from './services/api';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
