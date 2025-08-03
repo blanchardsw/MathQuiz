@@ -30,7 +30,7 @@ func HandleInitSession(w http.ResponseWriter, r *http.Request) {
 			Value:    sessionID,
 			Path:     "/",
 			HttpOnly: true,
-			SameSite: http.SameSiteLaxMode,
+			SameSite: http.SameSiteNoneMode,
 			Secure:   true,
 		})
 
