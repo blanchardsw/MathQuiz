@@ -1,14 +1,14 @@
-# Use official Go image
 FROM golang:1.21
 
-# Set working directory
 WORKDIR /app
 
-# Copy everything
-COPY . .
+# Copy go.mod and go.sum first to leverage Docker layer caching
+COPY go.mod go.sum ./
 
-# Build using readonly module mode
+# Copy the backend source code
+COPY ./backend ./backend
+
+# Build the binary
 RUN go build -mod=readonly -o main ./backend
 
-# Run the binary
 CMD ["./main"]
