@@ -58,9 +58,6 @@ go.work
 # Go vendor directory (if using)
 vendor/
 
-# Go module download cache
-go.sum
-
 # Logs
 *.log
 logs/
