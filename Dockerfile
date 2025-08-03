@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . .
 
 # Build the backend
-RUN go build -o main ./backend
+RUN go build -mod=vendor -o main ./backend
 
 # Run the binary
 CMD ["./main"]
