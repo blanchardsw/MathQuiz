@@ -1,5 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
 import {jwtDecode} from 'jwt-decode';
+import {ToastContainer, toast} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export interface Question {
   operand1: number;
@@ -122,9 +124,19 @@ class ApiService {
 
   logout(): void {
     sessionStorage.removeItem("jwt");
-    if (window.location.pathname !== "/") {
+  
+    toast.error("Your session has expired. Please log in again.", {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  
+    setTimeout(() => {
       window.location.href = "/";
-    }
+    }, 1500); // Give time for toast to show before redirect
   }
 }
 

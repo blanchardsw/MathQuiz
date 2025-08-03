@@ -1,27 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Home from './pages/Home';
 import './index.css';
-import { useEffect } from "react";
-import axios from 'axios';
 import { SessionProvider } from './contexts/SessionContext';
+import { apiService } from './services/api';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   useEffect(() => {
     const initSession = async () => {
-      const baseURL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
-
       try {
-        const res = await axios.post(baseURL + "/init-session", {
-          withCredentials: true,
-        });
-
-        if (res.status === 200) {
-          console.log("Session initialized");
-        } else {
-          console.warn("Unexpected status:", res.status);
-        }
+        await apiService.initSession();
+        console.log("Session initialized");
       } catch (err) {
         console.error("Session init failed:", err);
+        toast.error("Failed to initialize session. Please try again later.", {
+          position: "top-right",
+          autoClose: 5000,
+        });
       }
     };
 
@@ -32,6 +28,11 @@ function App() {
     <SessionProvider>
       <div className="App">
         <Home />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          aria-label="Notification messages"
+        />
       </div>
     </SessionProvider>
   );
