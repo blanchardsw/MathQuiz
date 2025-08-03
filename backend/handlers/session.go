@@ -16,6 +16,7 @@ func HandleInitSession(w http.ResponseWriter, r *http.Request) {
 	_, _, err := getSession(r)
 	if err != nil {
 		// Create new session
+		log.Printf("No valid session found: %v. Creating new session.", err)
 		sessionID := generateSessionID()
 		sessionData := &SessionData{
 			HighScores: make(map[string]int),
@@ -28,9 +29,9 @@ func HandleInitSession(w http.ResponseWriter, r *http.Request) {
 			Name:     "session_id",
 			Value:    sessionID,
 			Path:     "/",
-			HttpOnly: false,
+			HttpOnly: true,
 			SameSite: http.SameSiteLaxMode,
-			Secure:   false,
+			Secure:   true,
 		})
 
 		// ✅ Use sessionID in a log to silence staticcheck

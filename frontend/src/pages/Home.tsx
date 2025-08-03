@@ -109,7 +109,8 @@ const Home: React.FC = () => {
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                   >
-                    Easy (1-10, add/subtract)
+                    Easy <br />
+                    ➕ / ➖
                   </button>
                   <button
                     onClick={() => setDifficulty('normal')}
@@ -119,7 +120,8 @@ const Home: React.FC = () => {
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                   >
-                    Normal (1-20, add/subtract/multiply)
+                    Normal <br />
+                    ➕ / ➖ / ✖️
                   </button>
                   <button
                     onClick={() => setDifficulty('hard')}
@@ -129,7 +131,8 @@ const Home: React.FC = () => {
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                   >
-                    Hard (10-99, add/subtract/multiply/divide)
+                    Hard <br />
+                    ➕ / ➖ / ✖️ / ➗
                   </button>
                 </div>
               </div>

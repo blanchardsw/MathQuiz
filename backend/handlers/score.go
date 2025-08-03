@@ -44,7 +44,7 @@ func getSession(r *http.Request) (*SessionData, string, error) {
 
 	sessionData, exists := sessions[cookie.Value]
 	if !exists {
-		return nil, cookie.Value, errors.New("session not found")
+		return nil, cookie.Value, errors.New("Session not found.")
 	}
 
 	return sessionData, cookie.Value, nil
@@ -64,7 +64,7 @@ func HandleAnswer(w http.ResponseWriter, r *http.Request) {
 
 	sessionData, sessionID, err := getSession(r)
 	if err != nil {
-		http.Error(w, "Session not found", http.StatusUnauthorized)
+		http.Error(w, "Session not found.", http.StatusUnauthorized)
 		return
 	}
 
@@ -102,7 +102,7 @@ func HandleScore(w http.ResponseWriter, r *http.Request) {
 	sessionData, sessionID, err := getSession(r)
 	log.Println("Handling /api/score")
 	if err != nil {
-		http.Error(w, "Session not found", http.StatusUnauthorized)
+		http.Error(w, "Session not found.", http.StatusUnauthorized)
 		return
 	}
 
@@ -155,7 +155,7 @@ func HandleResetScore(w http.ResponseWriter, r *http.Request) {
 
 	sessionData, sessionID, err := getSession(r)
 	if err != nil {
-		http.Error(w, "Session not found", http.StatusUnauthorized)
+		http.Error(w, "Session not found.", http.StatusUnauthorized)
 		return
 	}
 
