@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . .
 
 # Build the backend
-RUN go build -o backend/main ./backend
+RUN go build -o main ./backend
 
 # Run the binary
-CMD ["./backend/main"]
+CMD ["./main"]
