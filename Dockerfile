@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy everything
 COPY . .
 
-# Build the backend
+# Build using readonly module mode
 RUN go build -mod=readonly -o main ./backend
 
 # Run the binary
