@@ -101,39 +101,40 @@ const Home: React.FC = () => {
                   Choose Difficulty:
                 </label>
                 <div className="flex justify-center space-x-2">
-                  <button
+                <button
                     onClick={() => setDifficulty('easy')}
-                    className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${
-                      difficulty === 'easy'
-                        ? 'bg-green-600 text-white'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    className={`w-32 h-20 flex flex-col justify-center items-center text-sm rounded-lg font-medium transition-colors whitespace-nowrap ${
+                        difficulty === 'easy'
+                            ? 'bg-green-600 text-white'
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
-                  >
-                    Easy <br />
-                    ➕ / ➖
-                  </button>
+                >
+                    Easy
+                    <span className="text-xs">➕ / ➖</span>
+                </button>
+
                   <button
                     onClick={() => setDifficulty('normal')}
-                    className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${
+                    className={`w-32 h-20 flex flex-col justify-center items-center text-sm rounded-lg font-medium transition-colors whitespace-nowrap ${
                       difficulty === 'normal'
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
-                  >
-                    Normal <br />
-                    ➕ / ➖ / ✖️
-                  </button>
+                >
+                    Normal
+                    <span className="text-xs">➕ / ➖ / ✖️</span>
+                </button>
                   <button
                     onClick={() => setDifficulty('hard')}
-                    className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${
+                    className={`w-32 h-20 flex flex-col justify-center items-center text-sm rounded-lg font-medium transition-colors whitespace-nowrap ${
                       difficulty === 'hard'
                         ? 'bg-red-600 text-white'
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
-                  >
-                    Hard <br />
-                    ➕ / ➖ / ✖️ / ➗
-                  </button>
+                >
+                    Hard
+                    <span className="text-xs">➕ / ➖ / ✖️ / ➗</span>
+                </button>
                 </div>
               </div>
               

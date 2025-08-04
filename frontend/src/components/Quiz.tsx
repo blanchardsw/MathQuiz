@@ -29,7 +29,10 @@ const Quiz: React.FC<QuizProps> = ({ onAnswerSubmitted, isActive, onTimeUp, diff
       // Auto-focus the input field after question loads
       setTimeout(() => {
         if (inputRef.current) {
-          inputRef.current.focus();
+          requestAnimationFrame(() => {
+            inputRef.current?.focus();
+            inputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
         }
       }, 100);
     } catch (error) {
