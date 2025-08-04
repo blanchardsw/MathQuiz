@@ -48,10 +48,12 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
-	err := godotenv.Load()
-	log.Println("Loaded ALLOWED_ORIGINS:", os.Getenv("ALLOWED_ORIGINS"))
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if !strings.Contains(os.Getenv("GO_ENV"), "prod") {
+		err := godotenv.Load()
+		log.Println("Loaded ALLOWED_ORIGINS:", os.Getenv("ALLOWED_ORIGINS"))
+		if err != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -67,7 +69,7 @@ func main() {
 	http.Handle("/api/health", corsMiddleware(http.HandlerFunc(handlers.HandleHealth)))
 
 	log.Println("Server running on port", port)
-	err = http.ListenAndServe(":"+port, nil)
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Fatal("Server failed:", err)
 	}
