@@ -12,9 +12,16 @@
     # -------- Stage 2: Run --------
     FROM alpine:latest
     
-    RUN apk --no-cache add ca-certificates
+    # Install shell and certs
+    RUN apk --no-cache add ca-certificates bash
     
+    # Copy binary and make it executable
     COPY --from=builder /app/main /main
     RUN chmod +x /main
     
-    ENTRYPOINT ["/main"]    
+    # Set working directory (optional)
+    WORKDIR /
+    
+    # Explicitly set entrypoint
+    ENTRYPOINT ["/main"]
+    
