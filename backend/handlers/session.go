@@ -9,10 +9,6 @@ import (
 
 func HandleInitSession(w http.ResponseWriter, r *http.Request) {
 	log.Println("Handling /api/init-session")
-	if r.Method == "OPTIONS" {
-		w.WriteHeader(http.StatusOK)
-		return
-	}
 
 	// Check if session already exists
 	_, _, err := getSession(r)
