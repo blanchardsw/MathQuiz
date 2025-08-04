@@ -1,19 +1,24 @@
-FROM golang:1.21
+# -------- Stage 1: Build --------
+    FROM golang:1.21 AS builder
 
-# Set working directory to backend (where go.mod lives)
-WORKDIR /app/backend
-
-# Copy go.mod and go.sum first
-COPY ./backend/go.mod ./backend/go.sum ./
-
-# Download dependencies
-RUN go mod download
-
-# Copy the rest of the backend source code
-COPY ./backend ./
-
-# Build the Go binary
-RUN go build -mod=readonly -o /app/main .
-
-# Run the binary
-CMD ["/app/main"]
+    WORKDIR /app
+    
+    # Copy go.mod and go.sum first to leverage caching
+    COPY ./backend/go.mod ./backend/go.sum ./
+    RUN go mod download
+    
+    # Copy the rest of the source code
+    COPY ./backend ./
+    
+    # Build the binary
+    RUN go build -mod=readonly -o main .
+    
+    # -------- Stage 2: Run --------
+    FROM gcr.io/distroless/static:nonroot
+    
+    # Copy the binary from the builder stage
+    COPY --from=builder /app/main /main
+    
+    # Run the binary
+    CMD ["/main"]
+    
