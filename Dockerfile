@@ -3,21 +3,23 @@
 
     WORKDIR /app
     
-    # Copy go.mod and go.sum first to leverage caching
     COPY ./backend/go.mod ./backend/go.sum ./
     RUN go mod download
     
-    # Copy the rest of the source code
     COPY ./backend ./
-    
-    # Build the binary
     RUN go build -mod=readonly -o main .
     
     # -------- Stage 2: Run --------
-    FROM gcr.io/distroless/static:nonroot
+    FROM alpine:latest
     
-    # Copy the binary from the builder stage
+    # Install minimal dependencies (if needed)
+    RUN apk --no-cache add ca-certificates
+    
+    # Copy the binary from builder
     COPY --from=builder /app/main /main
+    
+    # Set working directory (optional)
+    WORKDIR /
     
     # Run the binary
     CMD ["/main"]
