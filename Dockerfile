@@ -12,15 +12,9 @@
     # -------- Stage 2: Run --------
     FROM alpine:latest
     
-    # Install minimal dependencies (if needed)
     RUN apk --no-cache add ca-certificates
     
-    # Copy the binary from builder
     COPY --from=builder /app/main /main
+    RUN chmod +x /main
     
-    # Set working directory (optional)
-    WORKDIR /
-    
-    # Run the binary
-    CMD ["/main"]
-    
+    ENTRYPOINT ["/main"]    
