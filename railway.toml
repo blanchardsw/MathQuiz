@@ -3,7 +3,7 @@
   buildCommand = "cd backend && go build -o main ."
 
 [deploy]
-  startCommand = "cd backend && ./main"
+  startCommand = "/main"
   restartPolicyType = "on_failure"
   restartPolicyMaxRetries = 10
 
