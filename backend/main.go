@@ -60,6 +60,16 @@ func main() {
 		port = "4000" // fallback for local dev
 	}
 
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "OPTIONS" {
+			log.Println("Global OPTIONS handler triggered for:", r.URL.Path)
+			// Let middleware handle CORS headers
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		http.NotFound(w, r)
+	})
+
 	http.Handle("/api/quiz", corsMiddleware(http.HandlerFunc(handlers.HandleQuiz)))
 	http.Handle("/api/question", corsMiddleware(http.HandlerFunc(handlers.HandleGenerateQuestion)))
 	http.Handle("/api/answer", corsMiddleware(http.HandlerFunc(handlers.HandleAnswer)))
