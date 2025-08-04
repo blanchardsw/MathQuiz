@@ -4,8 +4,7 @@ import (
 	"log"
 	"mental-math-trainer/handlers"
 	"net/http"
-
-	_ "github.com/golang-jwt/jwt/v5"
+	"os"
 )
 
 func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
@@ -29,15 +28,21 @@ func corsMiddleware(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "4000" // fallback for local dev
+	}
+
 	http.HandleFunc("/api/quiz", corsMiddleware(handlers.HandleQuiz))
 	http.HandleFunc("/api/question", corsMiddleware(handlers.HandleGenerateQuestion))
 	http.HandleFunc("/api/answer", corsMiddleware(handlers.HandleAnswer))
 	http.HandleFunc("/api/score", corsMiddleware(handlers.HandleScore))
 	http.HandleFunc("/api/reset-score", corsMiddleware(handlers.HandleResetScore))
 	http.HandleFunc("/api/init-session", corsMiddleware(handlers.HandleInitSession))
+	http.HandleFunc("/api/health", corsMiddleware(handlers.HandleHealth))
 
-	log.Println("Server running on port 4000")
-	err := http.ListenAndServe(":4000", nil)
+	log.Println("Server running on port", port)
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Fatal("Server failed:", err)
 	}
